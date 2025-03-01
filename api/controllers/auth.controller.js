@@ -33,15 +33,17 @@ export const login = async (req, res) => {
   if (!isPasswordValid)
     return res.status(401).json({ message: "Invalid Credentials" });
   //GENERATE COOKIE TOKEN AND SEND
-  // res.setHeader("Set-Cookie", "test=" + "myValue").json({message:"Login Successfulys"});
   const age = 1000 * 60 * 60 * 24 * 7;
   const token = jwt.sign(
     {
       id: user.id,
+      isAdmin: false,
     },
     process.env.JWT_SECRET_KEY,
     { expiresIn: age }
   );
+
+  const { password: userPassword, ...userInfo } = user;
   res
     .cookie("token", token, {
       httpOnly: true,
@@ -49,12 +51,12 @@ export const login = async (req, res) => {
       maxAge: age,
     })
     .status(200)
-    .json({ message: "Login Successfulys" });
+    .json({ userInfo });
   try {
   } catch (err) {
     res.status(500).json({ message: "Failed to login" });
   }
 };
 export const logout = (req, res) => {
-res.clearCookie("token").status(200).json({message:"Logout done"})
+  res.clearCookie("token").status(200).json({ message: "Logout done" });
 };
